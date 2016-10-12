@@ -6,19 +6,60 @@ contract PeerReview {
   State public state;
   hash fileHash;
 
-  function PeerReview(uint initValue, address initResearcher, address initJournal, hash initFileHash) {
-    researcher = initResearcher;
+  function PeerReview(address initJournal, hash initFileHash)
+    payable 
+  {
+    researcher = msg.sender;
     journal = initJournal;
-    value = initValue;
+    value = msg.value;
+    state = State.Created;
     fileHash = initFileHash;
   }
-  
+
   modifier inState(State _state) {
     if (state != _state) throw;
     _;
   }
 
-  function getResearcher() constant return (address retResearcher) {
+  modifier onlyJournal() {
+    if(msg.sender != journal) throw;
+    _;
+  }
+
+  event peerReviewApproved();
+  event peerReviewDeclined();
+
+  function approve()
+    onlyJournal
+    inState(Created)
+  {
+    peerReviewApproved();
+
+    // set state to approved
+    state = State.Approved;
+
+    // transfer all ether to journal
+    if(!journal.send(this.balance)){
+      throw;
+    }
+  }
+
+  function decline()
+    onlyJournal
+    inState(Created)
+  {
+    peerReviewDeclined();
+
+    // set state to declined
+    state = State.Declined;
+
+    // transfer all ether back to researcher
+    if(!researcher.send(this.balance)){
+      throw;
+    }
+  }
+
+  function getResearcher() constant returns (address retResearcher) {
     return researcher;
   }
 
@@ -37,10 +78,4 @@ contract PeerReview {
   function getFileHash() constant returns (hash retHash) {
     return fileHash;
   }
-
-
-
-
-
-
 }
