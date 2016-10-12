@@ -58,24 +58,4 @@ contract PeerReview {
       throw;
     }
   }
-
-  function getResearcher() constant returns (address retResearcher) {
-    return researcher;
-  }
-
-  function getJournal() constant returns (address retJournal) {
-    return journal;
-  }
-
-  function getState() constant returns (State retState) {
-    return state;
-  }
-
-  function getValue() constant returns (uint retVal) {
-    return value;
-  }
-
-  function getFileHash() constant returns (hash retHash) {
-    return fileHash;
-  }
 }
